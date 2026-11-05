@@ -6,12 +6,21 @@ public class GameManager : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     int score = 0;
+    int bestScore = 0;
     public GameObject gameOverPanel;
     public GameObject pipeSpawner;
+    public GameObject background1;
+    public GameObject background2;
     public TextMeshProUGUI  scoreText;
+    public TextMeshProUGUI bestScoreText;
+    public GameObject newRecordPanel;
+    private bool newRecord = false;
     void Start()
     {
+        bestScore = PlayerPrefs.GetInt("BestScore", 0);
+        
         gameOverPanel.SetActive(false);
+        newRecordPanel.SetActive(false);
         UpdateScoreInfo();
 
     }
@@ -19,6 +28,7 @@ public class GameManager : MonoBehaviour
     void UpdateScoreInfo()
     {
         scoreText.SetText("Score: " + score);
+        bestScoreText.SetText("Best: " + bestScore);
     }
 
     // Update is called once per frame
@@ -30,7 +40,19 @@ public class GameManager : MonoBehaviour
     public void AddScore(int amount)
     {
         score += amount;
+
+        if (score > bestScore)
+        {
+            bestScore = score;
+
+            PlayerPrefs.SetInt("BestScore", bestScore);
+            PlayerPrefs.Save();
+
+            newRecord = true;
+        }
+
         UpdateScoreInfo();
+
         Debug.Log(score);
     }
 
@@ -48,6 +70,13 @@ public class GameManager : MonoBehaviour
             Destroy(pip.GetComponent<Pipe>());
         }
         Destroy(pipeSpawner.GetComponent<PipeSpawner>());
+        Destroy(background1.GetComponent<Background>());
+        Destroy(background2.GetComponent<Background>());
+        
+        if (newRecord)
+        {
+            newRecordPanel.SetActive(true);
+        }
     }
 
     public void RestartGame()
